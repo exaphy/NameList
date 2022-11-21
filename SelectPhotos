@@ -1,0 +1,60 @@
+import MapKit 
+import SwiftUI
+
+struct SelectPhotos: View {
+    @StateObject private var viewModel: ViewModel
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                TextField("Name", text: $viewModel.name)
+                Button("Add Image") {
+                    viewModel.showPicker = true 
+                    viewModel.fetchLocation()
+                }
+                Button("Add Location") {
+                    if viewModel.image == nil || viewModel.name.isEmpty {
+                        
+                    } else {
+                    viewModel.fetchLocation()
+                    }
+                }
+                viewModel.swiftImage?
+                    .resizable()
+                    .scaledToFit()
+                Map(coordinateRegion: $viewModel.finalLocation, annotationItems: viewModel.photos.locations) { location in 
+                    MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)) { 
+                        VStack {
+                            Circle()
+                                .frame(height: 25)
+                                .foregroundColor(.green)
+                            Text(location.name)
+                        }
+                    }
+                }
+                .frame(height: 400)
+            }
+            .navigationTitle("Add Name")
+            .sheet(isPresented: $viewModel.showPicker) {
+                ImagePicker(image: $viewModel.image)
+            }
+            .onChange(of: viewModel.image) { _ in 
+                guard let image = viewModel.image else { return }
+                
+                viewModel.swiftImage = Image(uiImage: image)
+                    }
+            .toolbar {
+                Button("Done") {
+                    dismiss()
+                    viewModel.save()
+                }
+                .disabled(viewModel.name.isEmpty)
+            }
+        }
+    }
+    
+    init(photos: Photos) {
+        _viewModel = StateObject(wrappedValue: ViewModel(photos: photos))
+    }
+}
