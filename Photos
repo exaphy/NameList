@@ -1,0 +1,36 @@
+import SwiftUI
+
+class Photos: Codable, ObservableObject {
+    enum CodingKeys: CodingKey {
+        case photos, locations
+    }
+    
+    let photosURL = FileManager.documentsDirectory.appendingPathComponent("photos")
+    let locationsURL = FileManager.documentsDirectory.appendingPathComponent("locations")
+    @Published var photos = [Photo]()
+    @Published var locations = [Location]()
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(photos, forKey: .photos)
+        try container.encode(locations, forKey: .locations)
+    }
+    
+    init() { 
+        do {
+            let photosData = try Data(contentsOf: photosURL)
+            photos = try JSONDecoder().decode([Photo].self, from: photosData)
+            let locationData = try Data(contentsOf: locationsURL)
+            locations = try JSONDecoder().decode([Location].self, from: locationData)
+        } catch {
+            photos = []
+            print(error)
+        }
+    }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        photos = try container.decode([Photo].self, forKey: .photos)
+        locations = try container.decode([Location].self, forKey: .locations)
+    }
+}
