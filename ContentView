@@ -1,0 +1,52 @@
+import SwiftUI
+
+struct ContentView: View {
+    @State private var showSheet = false 
+    @StateObject var photos = Photos()
+    
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(photos.photos.sorted()) { photos in 
+                NavigationLink {
+                    DetailView(image: photos.photo)
+                        .navigationTitle(photos.name)
+                } label: {
+                    HStack {
+                        Image(uiImage: photos.photo)
+                            .resizable()
+                            .scaledToFit()
+                        .frame(height: 30)   
+                        Text(photos.name)
+                    }
+                }    
+                }
+                Section(photos.photos.isEmpty ? "" : "Map Locations") {
+                    if photos.photos.isEmpty {
+                        
+                    } else {
+                        NavigationLink {
+                            Locations(locations: photos)
+                                .navigationTitle("Map Locations")
+                        } label: {
+                            Text("Map Locations")
+                        }
+                    }
+                }
+            }
+            .toolbar {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button {
+                        showSheet = true 
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showSheet) {
+                SelectPhotos(photos: photos)
+            }
+            .navigationTitle("NameList")
+        }
+    }
+}
