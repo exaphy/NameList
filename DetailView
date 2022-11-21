@@ -1,0 +1,14 @@
+import MapKit 
+import SwiftUI
+
+struct DetailView: View {
+    var image: UIImage
+    
+    var body: some View {
+            let swiftImage = Image(uiImage: image)
+            swiftImage
+                .resizable()
+                .scaledToFit()
+                .padding()
+    }
+}
