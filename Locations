@@ -1,0 +1,21 @@
+import MapKit
+import SwiftUI
+
+struct Locations: View {
+    @ObservedObject var locations: Photos
+    @State private var finalLocation = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 50, longitude: -100), span: MKCoordinateSpan(latitudeDelta: 100, longitudeDelta: 100))
+    
+    var body: some View {
+        Map(coordinateRegion: $finalLocation, annotationItems: locations.locations) { location in 
+            MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude)) { 
+                VStack {
+                    Circle()
+                        .frame(height: 15)
+                        .foregroundColor(.green)
+                    Text(location.name)
+                        .fixedSize()
+                }
+            }
+        }
+    }
+}
