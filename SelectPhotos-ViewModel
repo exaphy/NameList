@@ -1,0 +1,90 @@
+import MapKit
+import SwiftUI
+
+extension SelectPhotos {
+    class ViewModel: ObservableObject {
+        @Published var image: UIImage?
+        @Published var swiftImage: Image?
+        @Published var showPicker = false 
+        @Published var name = ""
+        @Published var finalLocation = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 50, longitude: -100), span: MKCoordinateSpan(latitudeDelta: 100, longitudeDelta: 100))
+        let locationFetcher = LocationFetcher()
+        
+        @ObservedObject var photos: Photos
+        let photosURL = FileManager.documentsDirectory.appendingPathComponent("photos")
+        let locationsURL = FileManager.documentsDirectory.appendingPathComponent("locations")
+        
+        func save() {
+            guard let photo = image else { return }
+            let newImage = Photo(name: name, photo: photo)
+            photos.photos.append(newImage)
+            do {
+                let encodedData = try JSONEncoder().encode(photos.photos)
+                try encodedData.write(to: photosURL, options: [.atomic, .completeFileProtection])
+                let encodedLocations = try JSONEncoder().encode(photos.locations)
+                try encodedLocations.write(to: locationsURL, options: [.atomic, .completeFileProtection])
+            } catch {
+                print(error)
+            }
+        }
+        
+        func fetchLocation() {
+            locationFetcher.start()
+            guard let location = self.locationFetcher.lastKnownLocation else { return }
+            let newLocation = MKCoordinateRegion(center: location, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0))
+            finalLocation = newLocation
+            
+            let locationLocation = Location(name: name, longitude: finalLocation.center.longitude, latitude: finalLocation.center.latitude)
+            photos.locations.append(locationLocation)
+        }
+        
+        init(photos: Photos) {
+            self.photos = photos
+        }
+    }
+}
+import MapKit
+import SwiftUI
+
+extension SelectPhotos {
+    class ViewModel: ObservableObject {
+        @Published var image: UIImage?
+        @Published var swiftImage: Image?
+        @Published var showPicker = false 
+        @Published var name = ""
+        @Published var finalLocation = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 50, longitude: -100), span: MKCoordinateSpan(latitudeDelta: 100, longitudeDelta: 100))
+        let locationFetcher = LocationFetcher()
+        
+        @ObservedObject var photos: Photos
+        let photosURL = FileManager.documentsDirectory.appendingPathComponent("photos")
+        let locationsURL = FileManager.documentsDirectory.appendingPathComponent("locations")
+        
+        func save() {
+            guard let photo = image else { return }
+            let newImage = Photo(name: name, photo: photo)
+            photos.photos.append(newImage)
+            do {
+                let encodedData = try JSONEncoder().encode(photos.photos)
+                try encodedData.write(to: photosURL, options: [.atomic, .completeFileProtection])
+                let encodedLocations = try JSONEncoder().encode(photos.locations)
+                try encodedLocations.write(to: locationsURL, options: [.atomic, .completeFileProtection])
+            } catch {
+                print(error)
+            }
+        }
+        
+        func fetchLocation() {
+            locationFetcher.start()
+            guard let location = self.locationFetcher.lastKnownLocation else { return }
+            let newLocation = MKCoordinateRegion(center: location, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0))
+            finalLocation = newLocation
+            
+            let locationLocation = Location(name: name, longitude: finalLocation.center.longitude, latitude: finalLocation.center.latitude)
+            photos.locations.append(locationLocation)
+        }
+        
+        init(photos: Photos) {
+            self.photos = photos
+        }
+    }
+}
