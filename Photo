@@ -1,0 +1,39 @@
+import MapKit
+import SwiftUI
+
+struct Photo: Codable, Comparable, Identifiable {
+    enum CodingKeys: CodingKey {
+        case name
+        case photo
+    }
+    
+    var id = UUID()
+    let name: String 
+    let photo: UIImage 
+    let url = FileManager.documentsDirectory.appendingPathComponent("photos")
+    
+    static func <(lhs: Photo, rhs: Photo) -> Bool {
+        lhs.name < rhs.name
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        if let jpegData = photo.jpegData(compressionQuality: 0.8) {
+            try? container.encode(jpegData, forKey: .photo)
+            try? jpegData.write(to: url, options: [.atomic, .completeFileProtection])
+        }
+    }
+    
+    init(name: String, photo: UIImage) {
+        self.name = name 
+        self.photo = photo
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        name = try container.decode(String.self, forKey: .name)
+        let imageData = try container.decode(Data.self, forKey: .photo)
+        photo = UIImage(data: imageData) ?? UIImage()
+    }
+}
